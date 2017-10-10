@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    body {
+      margin: 0;
+    }
+    .container {
+      box-sizing: border-box;
+      height: 100vh;
+      width: 100vw;
+      padding: 0.5em;
+    }
+    .cat {
+      height: 100%;
+      width: 100%;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+    }
+  </style>
+  <title>Cats of Twitter</title>
+</head>
+<body>
+  <div class="container">
+    <div class="cat"></div>
+  </div>
+  <script>
+    var cat = document.querySelector('.cat');
+    var socket = new WebSocket('ws://localhost:8080/stream');
+
+    socket.addEventListener('message', function (event) {
+      console.log('Tweet from server ', event.data);
+      cat.style.backgroundImage = 'url(' + event.data + ')';
+    });
+
+    socket.addEventListener('close', function(event) {
+      alert('Connection closed');
+    });
+  </script>
+</body>
+</html>
