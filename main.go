@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -8,6 +9,10 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 	tc := twitterCreds{
 		consumerKey:       os.Getenv("TWITTER_CONSUMER_KEY"),
 		consumerSecret:    os.Getenv("TWITTER_CONSUMER_SECRET"),
@@ -20,13 +25,13 @@ func main() {
 
 	http.HandleFunc("/", index)
 	http.Handle("/stream", stream)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	err := template.Must(template.ParseFiles("index.html")).Execute(w, nil)
+	err := template.Must(template.ParseFiles("index.tmpl.html")).Execute(w, fmt.Sprintf("ws://%s/stream", r.Host))
 	if err != nil {
 		log.Fatal(err)
 	}

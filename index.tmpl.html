@@ -30,7 +30,7 @@
   </div>
   <script>
     var cat = document.querySelector('.cat');
-    var socket = new WebSocket('ws://localhost:8080/stream');
+    var socket = new WebSocket({{.}});
 
     socket.addEventListener('message', function (event) {
       console.log('Tweet from server ', event.data);
