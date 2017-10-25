@@ -30,7 +30,9 @@
   </div>
   <script>
     var cat = document.querySelector('.cat');
-    var socket = new WebSocket({{.}});
+    cat.style.backgroundImage = 'url(https://pbs.twimg.com/media/DM71nSIUEAASD9c.jpg)';
+
+    var socket = new WebSocket("{{.}}");
 
     socket.addEventListener('message', function (event) {
       console.log('Tweet from server ', event.data);

@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 type forwarder struct {
 	join    chan *client
 	leave   chan *client
@@ -22,14 +20,11 @@ func (f *forwarder) run() {
 	for {
 		select {
 		case client := <-f.join:
-			log.Print("- New client joined")
 			f.clients[client] = true
 		case client := <-f.leave:
-			log.Print("- Client left")
 			delete(f.clients, client)
 			close(client.send)
 		case tweet := <-f.forward:
-			log.Print("- New cat photo received")
 			for client := range f.clients {
 				client.send <- tweet.GetPhotoURL()
 			}
