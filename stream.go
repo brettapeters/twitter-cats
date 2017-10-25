@@ -82,6 +82,7 @@ func (s *stream) readFromTwitter(closeConn <-chan struct{}) {
 		log.Println(err, res)
 		return
 	}
+	defer res.Body.Close()
 	// decode Tweets from the stream
 	tweetStream := json.NewDecoder(res.Body)
 	for {
