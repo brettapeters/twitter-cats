@@ -5,43 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <style>
-    body {
+    body, main {
       margin: 0;
+      padding: 0;
     }
-    .container {
-      box-sizing: border-box;
-      height: 100vh;
-      width: 100vw;
-      padding: 0.5em;
-    }
-    .cat {
-      height: 100%;
-      width: 100%;
-      background-repeat: no-repeat;
-      background-size: contain;
-      background-position: center;
+    #canvas {
+      display: block;
+      background-color: #eee;
+      background-image: url("http://www.technocrazed.com/wp-content/uploads/2015/11/HD-Galaxy-Wallpapers-Free-Download-110.jpg");
     }
   </style>
   <title>Cats of Twitter</title>
 </head>
 <body>
-  <div class="container">
-    <div class="cat"></div>
-  </div>
+  <canvas id="canvas"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.5.1/bluebird.core.min.js"></script>  
   <script>
-    var cat = document.querySelector('.cat');
-    cat.style.backgroundImage = 'url(https://pbs.twimg.com/media/DM71nSIUEAASD9c.jpg)';
+    (function() {
+      // requestAnimationFrame
+      window.rAF = (function(){
+        return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function(callback) {
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
 
-    var socket = new WebSocket("{{.}}");
+      // Cat
+      function Cat(src) {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.xr = 0;
+        this.yr = 0;
+        this.r = Math.random() * Math.PI * 2;
+        this.dx = Math.random() * 4 - 2;
+        this.dy = Math.random() * 4 - 2;
+        this.dr = Math.random() * 0.4 - 0.2
+        this.scale = Math.random() * 0.10 + 0.15;
+        this.image = new Image();
+        this.image.src = src;
+        this.imageLoaded = new Promise(function(resolve, reject) {
+          this.image.onload = function() {
+            this.x += this.image.width / 2;
+            this.y += this.image.height / 2;
+            resolve(true);
+          }.bind(this);
+        }.bind(this));
+      }
 
-    socket.addEventListener('message', function (event) {
-      console.log('Tweet from server ', event.data);
-      cat.style.backgroundImage = 'url(' + event.data + ')';
-    });
+      Cat.prototype.draw = function(ctx) {
+        this.imageLoaded.then(function() {
+          this.x += this.dx;
+          this.y += this.dy;
+          this.r += this.dr;
+          var iwM = this.image.width * this.scale * 2 + canvas.width;
+          var ihM = this.image.height * this.scale * 2 + canvas.height;
+          this.xr = ((this.x % iwM) + iwM) % iwM - this.image.width * this.scale;
+          this.yr = ((this.y % ihM) + ihM) % ihM - this.image.height * this.scale;
+          ctx.setTransform(this.scale, 0, 0, this.scale, this.xr, this.yr); // sets scales and origin
+          ctx.rotate(this.r);
+          ctx.drawImage(this.image, -this.image.width / 2, -this.image.height / 2);
+        }.bind(this));
+      };
 
-    socket.addEventListener('close', function(event) {
-      alert('Connection closed');
-    });
+      // Run the thing
+      var canvas = document.getElementById('canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      window.addEventListener('resize', debounce(function() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }, 100))
+      var ctx = canvas.getContext('2d');
+      var cats = [];
+      var socket = new WebSocket("{{.}}");
+
+      socket.addEventListener('message', function (event) {
+        cats.push(new Cat(event.data));
+      });
+
+      socket.addEventListener('close', function(event) {
+        alert('Connection closed');
+      });
+
+      function update(){
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cats.forEach(function(cat) {
+          cat.draw(ctx);
+        });
+        rAF(update);
+      }
+      rAF(update);
+
+      // Simple debounce function
+      function debounce(fn, delay) {
+        var timeout;
+        return function() {
+          var args = arguments;
+          var ctx = this;
+          clearTimeout(timeout);
+          timeout = setTimeout(function() {
+            fn.apply(ctx, args);
+          }, delay);
+        }
+      } 
+    })();
   </script>
 </body>
 </html>
