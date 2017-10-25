@@ -90,6 +90,7 @@ func main() {
 func index(w http.ResponseWriter, r *http.Request) {
 	err := template.Must(template.ParseFiles("index.html")).Execute(w, fmt.Sprintf("ws://%s/stream", r.Host))
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		http.Error(w, "error parsing index.html template", http.StatusInternalServerError)
 	}
 }

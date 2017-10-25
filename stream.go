@@ -115,7 +115,8 @@ var upgrader = &websocket.Upgrader{ReadBufferSize: socketBufferSize, WriteBuffer
 func (s *stream) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	socket, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal("ServeHTTP:", err)
+		log.Print(err)
+		http.Error(w, "error upgrading protocols - "+err.Error(), http.StatusBadRequest)
 	}
 	client := newClient(socket)
 	s.forwarder.join <- client
