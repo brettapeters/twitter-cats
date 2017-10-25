@@ -78,8 +78,12 @@
         canvas.height = window.innerHeight;
       }, 100))
       var ctx = canvas.getContext('2d');
-      var cats = [];
-      var socket = new WebSocket("{{.}}");
+      var cats = [
+        new Cat('http://www.pngmart.com/files/1/Adorable-Cat-PNG.png'),
+        new Cat('https://www.horoscope.com/images-US/games/game-lucky-cat-1.png'),
+        new Cat('https://pre00.deviantart.net/8360/th/pre/i/2013/053/a/8/hello_kitty_by_ratnachieyeoja-d5vt9be.png')
+      ];
+      var socket = new WebSocket('{{.}}');
 
       socket.addEventListener('message', function (event) {
         cats.push(new Cat(event.data));
