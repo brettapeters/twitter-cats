@@ -116,7 +116,6 @@ func (s *stream) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	socket, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print(err)
-		http.Error(w, "error upgrading protocols - "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	client := newClient(socket)
