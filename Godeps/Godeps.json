@@ -1,0 +1,16 @@
+{
+	"ImportPath": "github.com/brettapeters/cats",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.2.0-6-ga69d9f6",
+			"Rev": "a69d9f6de432e2c6b296a947d8a5ee88f68522cf"
+		},
+		{
+			"ImportPath": "github.com/mrjones/oauth",
+			"Rev": "3f67d9c274355678b2f9844b08d643e2f9213340"
+		}
+	]
+}
